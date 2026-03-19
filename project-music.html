@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Music Generator — Aryan Debray</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --red:#DC0000;--red2:#ff2020;--purple:#9b59ff;
+  --white:#f0eeea;--black:#080808;--black2:#0e0e0e;--black3:#141414;
+  --muted:#555;--muted2:#888;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);
+  --fd:'Barlow Condensed',sans-serif;--fm:'Share Tech Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--white);font-family:var(--fm);font-size:13px;line-height:1.6;overflow-x:hidden}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--black)}::-webkit-scrollbar-thumb{background:var(--red)}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:300;display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:52px;background:rgba(8,8,8,0.96);border-bottom:1px solid var(--border);backdrop-filter:blur(16px)}
+.nav-logo{font-family:var(--fd);font-weight:900;font-size:20px;letter-spacing:2px;color:var(--white);text-decoration:none}
+.nav-logo b{color:var(--red)}
+.nav-links{display:flex;list-style:none}
+.nav-links a{color:var(--muted2);text-decoration:none;font-size:10px;letter-spacing:.16em;text-transform:uppercase;padding:0 18px;height:52px;display:flex;align-items:center;border-right:1px solid var(--border);transition:color .2s,background .2s}
+.nav-links li:first-child a{border-left:1px solid var(--border)}
+.nav-links a:hover{color:var(--white);background:rgba(220,0,0,0.07)}
+.nav-cta{font-family:var(--fm);font-size:10px;letter-spacing:.1em;padding:7px 18px;background:var(--red);color:#fff;text-decoration:none;clip-path:polygon(7px 0%,100% 0%,calc(100% - 7px) 100%,0% 100%);transition:background .2s}
+.nav-cta:hover{background:var(--red2)}
+
+/* HERO HEADER */
+.proj-header{
+  padding-top:52px;background:var(--black);border-bottom:2px solid var(--red);
+  position:relative;overflow:hidden;
+}
+.proj-header::before{
+  content:'';position:absolute;inset:0;
+  background:
+    repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(255,255,255,0.015) 60px),
+    repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(255,255,255,0.015) 60px);
+  pointer-events:none;
+}
+.header-inner{padding:48px 60px 0;max-width:1200px;margin:0 auto;position:relative;z-index:1}
+.bc{display:flex;align-items:center;gap:10px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted2);margin-bottom:20px}
+.bc a{color:var(--muted2);text-decoration:none;transition:color .2s}.bc a:hover{color:var(--red)}
+.bc .sep{color:var(--red);font-size:8px}.bc .cur{color:var(--white)}
+
+.header-grid{display:grid;grid-template-columns:1fr 420px;gap:60px;align-items:end;padding-bottom:0}
+.proj-meta-top{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.proj-num-tag{font-family:var(--fd);font-weight:900;font-size:13px;color:rgba(220,0,0,.5);letter-spacing:.1em}
+.proj-sector-tag{font-size:10px;color:var(--red);letter-spacing:.16em;text-transform:uppercase}
+.proj-big-title{font-family:var(--fd);font-weight:900;font-size:clamp(40px,6vw,80px);text-transform:uppercase;letter-spacing:-1px;line-height:.88;color:var(--white);margin-bottom:14px}
+.proj-subtitle-it{font-family:var(--fd);font-weight:300;font-style:italic;font-size:clamp(14px,1.6vw,20px);color:rgba(240,238,234,.38);letter-spacing:3px;text-transform:uppercase;margin-bottom:22px}
+.proj-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:36px}
+.bdg{font-size:10px;padding:3px 12px;letter-spacing:.1em;text-transform:uppercase}
+.bdg-r{background:rgba(220,0,0,.14);color:var(--red);border:1px solid rgba(220,0,0,.3)}
+.bdg-w{background:rgba(240,238,234,.05);color:var(--muted2);border:1px solid var(--border)}
+.bdg-p{background:rgba(155,89,255,.12);color:var(--purple);border:1px solid rgba(155,89,255,.3)}
+
+/* QUALIFYING TIME CARD (top right) */
+.qual-card{
+  background:var(--black2);border:1px solid var(--border2);
+  border-left:3px solid var(--red);padding:24px 28px;
+  margin-bottom:0;
+}
+.qual-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted2);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.qual-label::before{content:'';display:block;width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 8px var(--red)}
+.qual-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0}
+.qm{padding:12px 0;border-right:1px solid var(--border)}
+.qm:last-child{border-right:none}
+.qm-v{font-family:var(--fd);font-weight:700;font-size:22px;color:var(--white);margin-bottom:2px}
+.qm-v.purple{color:var(--purple)}
+.qm-l{font-size:9px;color:var(--muted2);letter-spacing:.08em;text-transform:uppercase}
+.qm:not(:first-child){padding-left:16px}
+
+/* MINI TRACK + PIT STOPS */
+.track-section{
+  background:var(--black);border-bottom:1px solid var(--border);
+  padding:0;position:relative;
+}
+.track-ui{
+  max-width:1200px;margin:0 auto;
+  display:grid;grid-template-columns:380px 1fr;
+  min-height:600px;
+}
+
+/* Left: canvas */
+.track-canvas-wrap{
+  position:relative;border-right:1px solid var(--border);
+  background:var(--black2);
+  display:flex;flex-direction:column;
+}
+.track-label-top{
+  padding:20px 24px;border-bottom:1px solid var(--border);
+  font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted2);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.track-label-top span{color:var(--red)}
+#mini-track{display:block;width:100%}
+
+/* Pit stop nav buttons */
+.pit-nav{
+  display:flex;border-top:1px solid var(--border);
+}
+.pit-btn{
+  flex:1;padding:16px 10px;text-align:center;
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted2);cursor:pointer;border-right:1px solid var(--border);
+  transition:all .2s;background:none;border-top:none;border-bottom:none;border-left:none;font-family:var(--fm);
+  position:relative;
+}
+.pit-btn:last-child{border-right:none}
+.pit-btn::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--red);transform:scaleX(0);transition:transform .25s}
+.pit-btn.active{color:var(--white);background:rgba(220,0,0,.06)}
+.pit-btn.active::after{transform:scaleX(1)}
+.pit-btn.done{color:rgba(220,0,0,.6)}
+.pit-btn-num{font-family:var(--fd);font-weight:700;font-size:16px;display:block;margin-bottom:2px}
+
+/* Right: telemetry panel */
+.telem-panel{
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.telem-topbar{
+  padding:16px 28px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--black2);
+}
+.telem-id{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--red)}
+.telem-blink{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--red);animation:blink 1.1s step-end infinite;margin-left:8px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.telem-clock{font-size:11px;color:var(--muted2);font-family:var(--fm)}
+
+/* Pit stop content panels */
+.pit-panel{
+  display:none;flex-direction:column;flex:1;padding:36px 36px 28px;
+  animation:fadeSlide .4s ease forwards;
+}
+.pit-panel.active{display:flex}
+@keyframes fadeSlide{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+
+.pit-stop-tag{
+  display:inline-flex;align-items:center;gap:10px;
+  font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--red);margin-bottom:16px;
+}
+.pit-stop-tag .pdot{width:6px;height:6px;border-radius:50%;background:var(--red);box-shadow:0 0 6px var(--red)}
+.pit-title{font-family:var(--fd);font-weight:900;font-size:clamp(24px,3vw,38px);text-transform:uppercase;color:var(--white);margin-bottom:16px;line-height:1}
+.pit-body{font-size:13px;color:var(--muted2);line-height:1.85;margin-bottom:28px}
+.pit-body strong{color:var(--white);font-weight:normal}
+
+/* Telemetry data rows */
+.telem-rows{display:flex;flex-direction:column;gap:0;border:1px solid var(--border);margin-bottom:24px}
+.telem-row{
+  display:grid;grid-template-columns:140px 1fr 80px;
+  align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);
+  transition:background .2s;
+}
+.telem-row:last-child{border-bottom:none}
+.telem-row:hover{background:rgba(220,0,0,.03)}
+.telem-key{font-size:10px;color:var(--muted2);letter-spacing:.08em;text-transform:uppercase}
+.telem-bar-wrap{height:3px;background:rgba(255,255,255,.06);position:relative;margin:0 16px}
+.telem-bar{height:100%;background:var(--red);width:0%;transition:width 1.2s cubic-bezier(.22,1,.36,1);box-shadow:0 0 6px rgba(220,0,0,.5)}
+.telem-bar.purple-bar{background:var(--purple);box-shadow:0 0 6px rgba(155,89,255,.5)}
+.telem-val{font-size:11px;color:var(--white);text-align:right}
+
+/* Setup sheet (tech stack) */
+.setup-sheet{border:1px solid var(--border)}
+.setup-header{padding:10px 14px;background:var(--black3);border-bottom:1px solid var(--border);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted2)}
+.setup-rows{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.setup-item{padding:10px 14px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:4px}
+.setup-item:nth-child(2n){border-right:none}
+.setup-item:nth-last-child(-n+2){border-bottom:none}
+.setup-part{font-size:9px;color:var(--muted2);letter-spacing:.1em;text-transform:uppercase}
+.setup-val{font-size:12px;color:var(--white)}
+.setup-val.red{color:var(--red)}
+
+/* Fastest lap banner */
+.fastest-lap{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 16px;background:rgba(155,89,255,.1);border:1px solid rgba(155,89,255,.25);
+  margin-bottom:20px;
+}
+.fl-icon{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--purple)}
+.fl-val{font-family:var(--fd);font-weight:700;font-size:18px;color:var(--purple)}
+.fl-label{font-size:10px;color:var(--muted2)}
+
+/* Nav buttons inside panel */
+.panel-nav{display:flex;gap:10px;margin-top:auto;padding-top:20px}
+.pnav-btn{
+  display:inline-flex;align-items:center;gap:7px;padding:9px 20px;
+  font-family:var(--fm);font-size:10px;letter-spacing:.1em;
+  cursor:pointer;border:1px solid var(--border2);color:var(--muted2);
+  background:none;transition:all .2s;
+}
+.pnav-btn:hover{border-color:var(--red);color:var(--white)}
+.pnav-btn.primary{background:var(--red);color:#fff;border-color:var(--red);clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%)}
+.pnav-btn.primary:hover{background:var(--red2)}
+
+/* OTHER PROJECTS */
+.other-sec{background:var(--black2);border-top:1px solid var(--border);padding:52px 60px}
+.other-inner{max-width:1200px;margin:0 auto}
+.other-lbl{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:24px;display:flex;align-items:center;gap:12px}
+.other-lbl::after{content:'';flex:1;height:1px;background:var(--border)}
+.other-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2px}
+.oc{background:var(--black);border:1px solid var(--border);padding:20px;text-decoration:none;color:inherit;display:block;transition:border-color .2s,background .2s;position:relative;overflow:hidden}
+.oc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--red);transform:scaleY(0);transform-origin:bottom;transition:transform .22s}
+.oc:hover{border-color:rgba(220,0,0,.3);background:rgba(220,0,0,.03)}.oc:hover::before{transform:scaleY(1)}
+.oc-num{font-size:10px;color:rgba(220,0,0,.4);letter-spacing:.1em;margin-bottom:6px;font-family:var(--fd);font-weight:700}
+.oc-title{font-family:var(--fd);font-weight:700;font-size:15px;text-transform:uppercase;color:var(--white);margin-bottom:5px}
+.oc-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px}
+.oc-tag{font-size:9px;padding:2px 7px;border:1px solid var(--border);color:var(--muted2)}
+
+footer{border-top:3px solid var(--red);background:var(--black2);padding:18px 40px;display:flex;align-items:center;justify-content:space-between;font-size:10px;color:var(--muted2);letter-spacing:.08em}
+.fl2{font-family:var(--fd);font-weight:900;font-size:15px;color:var(--white);text-decoration:none}
+.fl2 span{color:var(--red)}
+.btn-o{display:inline-flex;align-items:center;gap:7px;padding:9px 20px;border:1px solid var(--border2);color:var(--muted2);font-family:var(--fm);font-size:10px;letter-spacing:.1em;text-decoration:none;transition:all .2s}
+.btn-o:hover{border-color:var(--red);color:var(--white)}
+
+@media(max-width:900px){
+  nav{padding:0 20px}.nav-links{display:none}
+  .header-inner{padding:32px 24px 0}
+  .header-grid{grid-template-columns:1fr;gap:24px}
+  .track-ui{grid-template-columns:1fr;min-height:auto}
+  .track-canvas-wrap{border-right:none;border-bottom:1px solid var(--border)}
+  .other-sec{padding:40px 24px}
+  footer{flex-direction:column;gap:6px;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">ARYAN<b> · </b>DEBRAY</a>
+  <ul class="nav-links">
+    <li><a href="index.html#s-about">About</a></li>
+    <li><a href="index.html#s-skills">Skills</a></li>
+    <li><a href="index.html#s-projects">Projects</a></li>
+    <li><a href="index.html#s-career">Career</a></li>
+    <li><a href="index.html#s-contact">Contact</a></li>
+  </ul>
+  <a href="https://linkedin.com/in/aryan-debray" target="_blank" class="nav-cta">LinkedIn ↗</a>
+</nav>
+
+<!-- HEADER -->
+<div class="proj-header">
+  <div class="header-inner">
+    <div class="bc">
+      <a href="index.html">Home</a><span class="sep">▶</span>
+      <a href="index.html#s-projects">Projects</a><span class="sep">▶</span>
+      <span class="cur">AI Music Generator</span>
+    </div>
+    <div class="header-grid">
+      <div>
+        <div class="proj-meta-top">
+          <span class="proj-num-tag">ENTRY 01 /04</span>
+          <span style="color:var(--border2)">|</span>
+          <span class="proj-sector-tag">Generative AI · Audio</span>
+        </div>
+        <div class="proj-big-title">AI Music<br>Generator</div>
+        <div class="proj-subtitle-it">Text to Audio via Meta MusicGen LLM</div>
+        <div class="proj-badges">
+          <span class="bdg bdg-r">Personal Project</span>
+          <span class="bdg bdg-w">2024</span>
+          <span class="bdg bdg-p">Fastest Lap: R² → 0.998</span>
+        </div>
+      </div>
+      <div class="qual-card">
+        <div class="qual-label">Qualifying Data</div>
+        <div class="qual-metrics">
+          <div class="qm"><div class="qm-v">32k</div><div class="qm-l">Hz Rate</div></div>
+          <div class="qm"><div class="qm-v">5–20s</div><div class="qm-l">Duration</div></div>
+          <div class="qm"><div class="qm-v purple">P1</div><div class="qm-l">Prompt→Audio</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MINI TRACK + TELEMETRY -->
+<div class="track-section">
+  <div class="track-ui">
+
+    <!-- LEFT: Mini Track Canvas -->
+    <div class="track-canvas-wrap">
+      <div class="track-label-top">
+        <span>Circuit Map — <span id="stop-label">Box 1 · Problem</span></span>
+        <span id="lap-display">LAP 1/3</span>
+      </div>
+      <canvas id="mini-track" height="420"></canvas>
+      <div class="pit-nav">
+        <button class="pit-btn active" onclick="goTo(0)">
+          <span class="pit-btn-num">BOX 1</span>Problem
+        </button>
+        <button class="pit-btn" onclick="goTo(1)">
+          <span class="pit-btn-num">BOX 2</span>Approach
+        </button>
+        <button class="pit-btn" onclick="goTo(2)">
+          <span class="pit-btn-num">BOX 3</span>Result
+        </button>
+      </div>
+    </div>
+
+    <!-- RIGHT: Telemetry Panel -->
+    <div class="telem-panel">
+      <div class="telem-topbar">
+        <span class="telem-id">● LIVE TELEMETRY — CAR #01<span class="telem-blink"></span></span>
+        <span class="telem-clock" id="telem-clock">00:00:00</span>
+      </div>
+
+      <!-- PANEL 0: PROBLEM -->
+      <div class="pit-panel active" id="panel-0">
+        <div class="pit-stop-tag"><div class="pdot"></div>Box 1 — Problem Statement</div>
+        <div class="pit-title">The Problem</div>
+        <div class="pit-body">
+          Creating original music traditionally requires years of training or expensive software. Most people cannot express a musical idea directly — there's no bridge between <strong>imagination and audio</strong>.<br><br>
+          The goal: build a system where anyone can describe a sound in plain language and receive a fully synthesised, original audio clip within seconds.
+        </div>
+        <div class="telem-rows">
+          <div class="telem-row">
+            <span class="telem-key">Barrier</span>
+            <div class="telem-bar-wrap"><div class="telem-bar" data-w="92"></div></div>
+            <span class="telem-val">HIGH</span>
+          </div>
+          <div class="telem-row">
+            <span class="telem-key">Accessibility</span>
+            <div class="telem-bar-wrap"><div class="telem-bar" data-w="12"></div></div>
+            <span class="telem-val">LOW</span>
+          </div>
+          <div class="telem-row">
+            <span class="telem-key">Opportunity</span>
+            <div class="telem-bar-wrap"><div class="telem-bar purple-bar" data-w="98"></div></div>
+            <span class="telem-val">CRITICAL</span>
+          </div>
+        </div>
+        <div class="panel-nav">
+          <button class="pnav-btn primary" onclick="goTo(1)">Next → BOX 2</button>
+        </div>
+      </div>
+
+      <!-- PANEL 1: APPROACH -->
+      <div class="pit-panel" id="panel-1">
+        <div class="pit-stop-tag"><div class="pdot"></div>Box 2 — Engineering Approach</div>
+        <div class="pit-title">The Build</div>
+        <div class="pit-body">
+          Integrated <strong>Meta's MusicGen LLM</strong> via the Audiocraft library. The pipeline: text prompt → MusicGen transformer → waveform synthesis → Streamlit playback. Prompt engineering was used to coax specific moods, genres, and instrumentation from the model.
+        </div>
+        <div class="setup-sheet">
+          <div class="setup-header">Car Setup — Tech Stack</div>
+          <div class="setup-rows">
+            <div class="setup-item"><span class="setup-part">Engine</span><span class="setup-val red">Meta MusicGen</span></div>
+            <div class="setup-item"><span class="setup-part">Fuel System</span><span class="setup-val red">Audiocraft</span></div>
+            <div class="setup-item"><span class="setup-part">Chassis</span><span class="setup-val">Python</span></div>
+            <div class="setup-item"><span class="setup-part">Cockpit UI</span><span class="setup-val">Streamlit</span></div>
+            <div class="setup-item"><span class="setup-part">Power Unit</span><span class="setup-val">PyTorch</span></div>
+            <div class="setup-item"><span class="setup-part">Tyres</span><span class="setup-val">Prompt Eng.</span></div>
+          </div>
+        </div>
+        <div class="panel-nav">
+          <button class="pnav-btn" onclick="goTo(0)">← BOX 1</button>
+          <button class="pnav-btn primary" onclick="goTo(2)">Next → BOX 3</button>
+        </div>
+      </div>
+
+      <!-- PANEL 2: RESULT -->
+      <div class="pit-panel" id="panel-2">
+        <div class="pit-stop-tag"><div class="pdot"></div>Box 3 — Race Result</div>
+        <div class="pit-title">The Result</div>
+        <div class="fastest-lap">
+          <span class="fl-icon">⬛ FASTEST LAP</span>
+          <span class="fl-val">32,000 Hz</span>
+          <span class="fl-label">Professional-grade sample rate</span>
+        </div>
+        <div class="pit-body">
+          Fully functional app producing <strong>high-quality audio</strong> across a wide range of genres and moods — all from natural language descriptions. Clips from 5 to 20 seconds, ready for creative use.
+        </div>
+        <div class="telem-rows">
+          <div class="telem-row">
+            <span class="telem-key">Audio Quality</span>
+            <div class="telem-bar-wrap"><div class="telem-bar purple-bar" data-w="96"></div></div>
+            <span class="telem-val">32 kHz</span>
+          </div>
+          <div class="telem-row">
+            <span class="telem-key">Output Range</span>
+            <div class="telem-bar-wrap"><div class="telem-bar" data-w="75"></div></div>
+            <span class="telem-val">5–20s</span>
+          </div>
+          <div class="telem-row">
+            <span class="telem-key">Genres Covered</span>
+            <div class="telem-bar-wrap"><div class="telem-bar" data-w="88"></div></div>
+            <span class="telem-val">BROAD</span>
+          </div>
+        </div>
+        <div class="panel-nav">
+          <button class="pnav-btn" onclick="goTo(1)">← BOX 2</button>
+          <a href="https://github.com/aryandebray/Music-Generator" target="_blank" class="pnav-btn primary" style="text-decoration:none">GitHub ↗</a>
+        </div>
+      </div>
+
+    </div><!-- /telem-panel -->
+  </div><!-- /track-ui -->
+</div><!-- /track-section -->
+
+<!-- OTHER PROJECTS -->
+<div class="other-sec">
+  <div class="other-inner">
+    <div class="other-lbl">Other Race Entries</div>
+    <div class="other-grid">
+      <a href="project-music.html" class="oc"><div class="oc-num">01</div><div class="oc-title">AI Music Generator</div><div class="oc-tags"><span class="oc-tag">MusicGen</span><span class="oc-tag">Streamlit</span></div></a>
+      <a href="project-temp.html" class="oc"><div class="oc-num">02</div><div class="oc-title">Temperature Predictor</div><div class="oc-tags"><span class="oc-tag">Bi-LSTM</span><span class="oc-tag">Climate</span></div></a>
+      <a href="project-chatbot.html" class="oc"><div class="oc-num">03</div><div class="oc-title">Hospital Chatbot</div><div class="oc-tags"><span class="oc-tag">GPT-3.5</span><span class="oc-tag">PwC</span></div></a>
+      <a href="project-stock.html" class="oc"><div class="oc-num">04</div><div class="oc-title">Stock Predictor</div><div class="oc-tags"><span class="oc-tag">Bi-LSTM</span><span class="oc-tag">Finance</span></div></a>
+    </div>
+    <div style="margin-top:28px;display:flex;gap:12px">
+      <a href="index.html#s-projects" class="btn-o">← All Projects</a>
+      <a href="index.html#s-contact" class="btn-o">Contact ↗</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <a href="index.html" class="fl2">AD<span>.</span></a>
+  <div>Aryan Debray · AI/ML Engineer · Kolkata, India</div>
+  <div>© 2025</div>
+</footer>
+
+<script>
+// ── TELEMETRY CLOCK ──────────────────────────────
+(function(){
+  const el=document.getElementById('telem-clock');
+  const start=Date.now();
+  setInterval(()=>{
+    const d=Date.now()-start;
+    const h=String(Math.floor(d/3600000)).padStart(2,'0');
+    const m=String(Math.floor(d%3600000/60000)).padStart(2,'0');
+    const s=String(Math.floor(d%60000/1000)).padStart(2,'0');
+    el.textContent=`${h}:${m}:${s}`;
+  },1000);
+})();
+
+// ── MINI TRACK CANVAS ────────────────────────────
+const canvas=document.getElementById('mini-track');
+const ctx=canvas.getContext('2d');
+
+// Abstract mini circuit — pit stops at P0, P1, P2
+// Normalised path points [x, y] in 0..1 space
+const PATH=[
+  [0.5, 0.05],  // start/finish straight
+  [0.82,0.08],  // sweep right
+  [0.88,0.18],  // right hairpin entry
+  [0.84,0.30],  // hairpin apex
+  [0.72,0.34],  // hairpin exit
+  [0.55,0.32],  // chicane left
+  [0.48,0.40],  // chicane right — PIT STOP 0 (problem)
+  [0.35,0.48],  // sweep left
+  [0.18,0.50],  // left hairpin
+  [0.14,0.60],  // left hairpin apex
+  [0.22,0.68],  // exit
+  [0.40,0.70],  // PIT STOP 1 (approach)
+  [0.60,0.72],  // straight
+  [0.78,0.76],  // right curve
+  [0.84,0.84],  // long right
+  [0.70,0.90],  // PIT STOP 2 (result)
+  [0.50,0.93],  // come back to centre
+  [0.20,0.88],  // left sweep
+  [0.12,0.78],
+  [0.15,0.68],  // (already covered above via hairpin)
+  [0.30,0.62],
+  [0.22,0.50],  // (overlaps for closed loop feel)
+];
+
+// Pit stop positions on path index
+// Pit stops evenly divide the full track into thirds
+// so the car covers the whole circuit across all 3 boxes
+const PIT_FRACS=[1/3, 2/3, 1.0];
+function pitIdx(stop){ return spline.length>0?Math.floor(PIT_FRACS[stop]*(spline.length-1)):0; }
+const PIT_INDICES=[0,0,0]; // filled lazily in resizeCanvas
+const PIT_LABELS=['P·PROBLEM','P·APPROACH','P·RESULT'];
+
+let currentStop=0;
+let carT=0; // 0..1 along path segment to current stop
+let animFrame=null;
+let animTarget=PIT_INDICES[0];
+let animFrom=0;
+let animTo=PIT_INDICES[0];
+
+function catmull(p0,p1,p2,p3,t){
+  return 0.5*((2*p1)+(-p0+p2)*t+(2*p0-5*p1+4*p2-p3)*t*t+(-p0+3*p1-3*p2+p3)*t*t*t);
+}
+function splinePts(pts,steps){
+  const out=[];
+  for(let i=0;i<pts.length-1;i++){
+    const p0=pts[Math.max(0,i-1)],p1=pts[i],p2=pts[i+1],p3=pts[Math.min(pts.length-1,i+2)];
+    for(let s=0;s<steps;s++){
+      const t=s/steps;
+      out.push([catmull(p0[0],p1[0],p2[0],p3[0],t),catmull(p0[1],p1[1],p2[1],p3[1],t)]);
+    }
+  }
+  out.push(pts[pts.length-1]);
+  return out;
+}
+
+let spline=[];
+let CW,CH;
+
+function resizeCanvas(){
+  CW=canvas.width=canvas.parentElement.clientWidth;
+  CH=canvas.height=420;
+  spline=splinePts(PATH,30);
+  if(spline.length){PIT_INDICES[0]=pitIdx(0);PIT_INDICES[1]=pitIdx(1);PIT_INDICES[2]=pitIdx(2);}
+  draw(carFrac);
+}
+window.addEventListener('resize',resizeCanvas);
+
+function toC(xn,yn){return[xn*CW,yn*CH];}
+
+// Current car progress: fraction along spline
+let carFrac=0.0;
+
+
+function draw(frac){
+  ctx.clearRect(0,0,CW,CH);
+
+  // Background grid
+  ctx.strokeStyle='rgba(255,255,255,0.03)';ctx.lineWidth=1;
+  for(let x=0;x<CW;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,CH);ctx.stroke();}
+  for(let y=0;y<CH;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(CW,y);ctx.stroke();}
+
+  const pts=spline.map(p=>toC(p[0],p[1]));
+  const carIdx=Math.min(Math.floor(frac*pts.length),pts.length-1);if(!pts.length)return;
+
+  // Track base
+  ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);
+  for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i][0],pts[i][1]);
+  ctx.strokeStyle='#1e1e1e';ctx.lineWidth=18;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();
+
+  // Track surface
+  ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);
+  for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i][0],pts[i][1]);
+  ctx.strokeStyle='#252525';ctx.lineWidth=14;ctx.stroke();
+
+  // Driven portion (red glow)
+  if(carIdx>1){
+    ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);
+    for(let i=1;i<=carIdx;i++) ctx.lineTo(pts[i][0],pts[i][1]);
+    ctx.strokeStyle='rgba(220,0,0,0.75)';ctx.lineWidth=2.5;
+    ctx.shadowColor='rgba(220,0,0,0.9)';ctx.shadowBlur=10;ctx.stroke();ctx.shadowBlur=0;
+  }
+
+  // Centre dashes
+  ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);
+  for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i][0],pts[i][1]);
+  ctx.strokeStyle='rgba(255,255,255,0.05)';ctx.lineWidth=1;ctx.setLineDash([6,10]);ctx.stroke();ctx.setLineDash([]);
+
+  // Start/finish line
+  const sp=pts[0];
+  ctx.fillStyle='#fff';ctx.fillRect(sp[0]-8,sp[1]-1,16,2);
+
+  // Pit stop markers
+  PIT_INDICES.forEach((pi,i)=>{
+    const idx=Math.min(pi,pts.length-1);
+    const px=pts[idx][0],py=pts[idx][1];
+    const passed=carIdx>=idx;
+    const isCurrent=i===currentStop;
+
+    // Outer ring
+    ctx.beginPath();ctx.arc(px,py,isCurrent?13:10,0,Math.PI*2);
+    ctx.strokeStyle=passed?'rgba(220,0,0,0.6)':'rgba(255,255,255,0.1)';ctx.lineWidth=1;ctx.stroke();
+
+    // Inner dot
+    ctx.beginPath();ctx.arc(px,py,isCurrent?7:5,0,Math.PI*2);
+    ctx.fillStyle=passed?'#DC0000':'#333';
+    ctx.shadowColor=passed?'rgba(220,0,0,0.9)':'transparent';ctx.shadowBlur=passed?14:0;
+    ctx.fill();ctx.shadowBlur=0;
+
+    // Label
+    const lx=px+(px>CW*0.6?-14:14);
+    ctx.font=`bold 8px 'Share Tech Mono',monospace`;
+    ctx.textAlign=px>CW*0.6?'right':'left';
+    ctx.fillStyle=isCurrent?'#DC0000':passed?'rgba(220,0,0,0.5)':'rgba(255,255,255,0.2)';
+    ctx.fillText(`BOX ${i+1}`,lx,py-8);
+    ctx.fillText(PIT_LABELS[i],lx,py+16);
+  });
+
+  // Car (tiny top-down)
+  if(pts.length>1&&carIdx>0&&carIdx<pts.length){
+    const cx=pts[carIdx][0],cy=pts[carIdx][1];
+    let angle=0;
+    if(carIdx<pts.length-1){
+      const nx=pts[carIdx+1],nx0=pts[carIdx];
+      angle=Math.atan2(nx[1]-nx0[1],nx[0]-nx0[0]);
+    }
+    ctx.save();ctx.translate(cx,cy);ctx.rotate(angle);
+    // Glow
+    const cg=ctx.createRadialGradient(0,0,2,0,0,18);
+    cg.addColorStop(0,'rgba(220,0,0,0.3)');cg.addColorStop(1,'rgba(220,0,0,0)');
+    ctx.fillStyle=cg;ctx.beginPath();ctx.arc(0,0,18,0,Math.PI*2);ctx.fill();
+    // Body
+    ctx.fillStyle='#DC0000';
+    ctx.beginPath();ctx.moveTo(7,0);ctx.bezierCurveTo(7,-2.5,5,-4,0,-4);ctx.bezierCurveTo(-5,-4,-7,-2.5,-7,0);ctx.bezierCurveTo(-7,2.5,-5,3.5,0,3.5);ctx.bezierCurveTo(5,3.5,7,2.5,7,0);ctx.fill();
+    // Nose
+    ctx.fillStyle='#bb0000';ctx.beginPath();ctx.moveTo(7,0);ctx.lineTo(11,-0.8);ctx.lineTo(11,0.8);ctx.closePath();ctx.fill();
+    // Cockpit
+    ctx.fillStyle='#111';ctx.beginPath();ctx.ellipse(1,0,2.2,1.2,0,0,Math.PI*2);ctx.fill();
+    // Wheels
+    ctx.fillStyle='#111';
+    [[4,-4],[4,4],[-4,-4],[-4,4]].forEach(([wx,wy])=>{ctx.beginPath();ctx.ellipse(wx,wy,1.8,0.9,-0.15,0,Math.PI*2);ctx.fill();});
+    // Wings
+    ctx.fillStyle='#aa0000';ctx.fillRect(8,-2.5,2,5);ctx.fillRect(-9,-3,1.5,6);
+    ctx.restore();
+  }
+}
+
+// Animate car to target
+let animating=false;
+function animateTo(targetStop){
+  if(animating)return;
+  animating=true;
+  const fromFrac=carFrac;
+  const toFrac=PIT_FRACS[targetStop];
+  const duration=900;
+  const start=performance.now();
+
+  function step(now){
+    const t=Math.min((now-start)/duration,1);
+    const ease=t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+    carFrac=fromFrac+(toFrac-fromFrac)*ease;
+    draw(carFrac);
+    if(t<1) requestAnimationFrame(step);
+    else{carFrac=toFrac;draw(carFrac);animating=false;}
+  }
+  requestAnimationFrame(step);
+}
+
+// ── PIT STOP NAVIGATION ──────────────────────────
+function goTo(stopIdx){
+  if(stopIdx===currentStop)return;
+  currentStop=stopIdx;
+
+  // Update buttons
+  document.querySelectorAll('.pit-btn').forEach((b,i)=>{
+    b.classList.toggle('active',i===stopIdx);
+    b.classList.toggle('done',i<stopIdx);
+  });
+
+  // Update panels
+  document.querySelectorAll('.pit-panel').forEach((p,i)=>{
+    p.classList.toggle('active',i===stopIdx);
+  });
+
+  // Update label
+  const labels=['Box 1 · Problem','Box 2 · Approach','Box 3 · Result'];
+  document.getElementById('stop-label').textContent=labels[stopIdx];
+  document.getElementById('lap-display').textContent=`LAP ${stopIdx+1}/3`;
+
+  // Animate car
+  animateTo(stopIdx);
+
+  // Animate bars after panel shows
+  setTimeout(animateBars,300);
+}
+
+function animateBars(){
+  document.querySelectorAll('.pit-panel.active .telem-bar').forEach(bar=>{
+    bar.style.width='0%';
+    setTimeout(()=>{bar.style.width=(bar.dataset.w||'0')+'%';},50);
+  });
+}
+
+// Init
+resizeCanvas();
+setTimeout(animateBars,400);
+</script>
+
+</body>
+</html>

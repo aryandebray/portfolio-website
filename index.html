@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aryan Debray — AI/ML Engineer</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --red:#DC0000;--red2:#ff2020;
+  --white:#f0eeea;--black:#080808;--black2:#0e0e0e;--black3:#161616;
+  --muted:#555;--muted2:#888;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);
+  --track:#1a1a1a;--track-glow:rgba(220,0,0,0.7);
+  --fd:'Barlow Condensed',sans-serif;--fm:'Share Tech Mono',monospace;
+}
+html{scroll-behavior:auto}
+body{background:var(--black);color:var(--white);font-family:var(--fm);font-size:13px;line-height:1.6;overflow-x:hidden}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--black)}::-webkit-scrollbar-thumb{background:var(--red)}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:300;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 40px;height:52px;
+  background:rgba(8,8,8,0.95);border-bottom:1px solid var(--border);
+  backdrop-filter:blur(16px);
+}
+.nav-logo{font-family:var(--fd);font-weight:900;font-size:20px;letter-spacing:2px;color:var(--white);text-decoration:none}
+.nav-logo b{color:var(--red)}
+.nav-links{display:flex;list-style:none}
+.nav-links a{color:var(--muted2);text-decoration:none;font-size:10px;letter-spacing:.16em;text-transform:uppercase;padding:0 18px;height:52px;display:flex;align-items:center;border-right:1px solid var(--border);transition:color .2s,background .2s}
+.nav-links li:first-child a{border-left:1px solid var(--border)}
+.nav-links a:hover,.nav-links a.active{color:var(--white);background:rgba(220,0,0,0.07)}
+.nav-cta{font-family:var(--fm);font-size:10px;letter-spacing:.1em;padding:7px 18px;background:var(--red);color:#fff;text-decoration:none;transition:background .2s;clip-path:polygon(7px 0%,100% 0%,calc(100% - 7px) 100%,0% 100%)}
+.nav-cta:hover{background:var(--red2)}
+
+/* ── SECTOR INDICATOR (top bar) ── */
+.sector-bar{
+  position:fixed;top:52px;left:0;right:0;z-index:299;
+  height:2px;background:var(--border);
+}
+.sector-progress{height:100%;background:var(--red);width:0%;transition:width .1s linear;box-shadow:0 0 8px var(--red)}
+
+/* ── TRACK CANVAS ── */
+#track-canvas{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  z-index:1;pointer-events:none;
+}
+
+/* ── SCROLL CONTAINER ── */
+#scroll-root{position:relative;z-index:2}
+
+/* ── HERO ── */
+#s-hero{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  position:relative;text-align:center;padding:80px 40px 60px;
+}
+.hero-inner{max-width:720px}
+.hero-kicker{
+  display:inline-flex;align-items:center;gap:10px;
+  font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--red);margin-bottom:24px;
+}
+.hero-kicker::before,.hero-kicker::after{content:'';display:block;width:28px;height:1px;background:var(--red)}
+h1{font-family:var(--fd);font-weight:900;font-size:clamp(64px,12vw,130px);line-height:.88;letter-spacing:-2px;text-transform:uppercase;margin-bottom:20px}
+h1 em{color:var(--red);font-style:normal;display:block}
+.hero-role{font-family:var(--fd);font-weight:300;font-style:italic;font-size:clamp(16px,2.2vw,26px);letter-spacing:5px;color:rgba(240,238,234,.35);text-transform:uppercase;margin-bottom:40px}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-r{display:inline-flex;align-items:center;gap:8px;padding:11px 28px;background:var(--red);color:#fff;font-family:var(--fm);font-size:11px;letter-spacing:.1em;text-decoration:none;clip-path:polygon(9px 0%,100% 0%,calc(100% - 9px) 100%,0% 100%);transition:background .2s}
+.btn-r:hover{background:var(--red2)}
+.btn-o{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;border:1px solid var(--border2);color:var(--muted2);font-family:var(--fm);font-size:11px;letter-spacing:.1em;text-decoration:none;transition:border-color .2s,color .2s}
+.btn-o:hover{border-color:var(--red);color:var(--white)}
+
+/* ── SECTIONS (positioned between track curves) ── */
+.track-section{
+  position:relative;padding:110px 0;
+}
+
+.section-panel{
+  max-width:1100px;margin:0 auto;padding:0 60px;
+  opacity:0;transform:translateY(32px);
+  transition:opacity .7s ease,transform .7s ease;
+}
+.section-panel.visible{opacity:1;transform:none}
+
+/* Sector label */
+.sector-label{
+  display:inline-flex;align-items:center;gap:12px;
+  font-size:10px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:20px;
+}
+.sector-dot{width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 8px var(--red);flex-shrink:0}
+.sector-name{color:var(--red)}
+.sector-num{color:var(--muted);margin-left:6px}
+
+.panel-title{
+  font-family:var(--fd);font-weight:900;
+  font-size:clamp(36px,5.5vw,64px);text-transform:uppercase;
+  letter-spacing:-.5px;line-height:.92;margin-bottom:40px;
+}
+
+/* ── ABOUT layout ── */
+.about-cols{display:grid;grid-template-columns:1.1fr 1fr;gap:72px;align-items:start}
+.about-p{color:var(--muted2);font-size:13px;line-height:1.9;margin-bottom:14px}
+.about-p strong{color:var(--white);font-weight:normal}
+.about-p .hl{color:var(--red)}
+
+.edu-stack{display:flex;flex-direction:column;gap:3px;margin-top:36px}
+.edu-card{border-left:2px solid var(--border);padding:14px 18px;transition:border-color .2s}
+.edu-card:hover{border-color:var(--red)}
+.edu-yr{font-size:9px;color:var(--red);letter-spacing:.12em;margin-bottom:3px}
+.edu-nm{font-family:var(--fd);font-weight:700;font-size:15px;color:var(--white)}
+.edu-dg{font-size:11px;color:var(--muted2);margin-top:2px}
+.edu-gr{display:inline-block;margin-top:7px;font-size:10px;padding:2px 10px;background:rgba(220,0,0,.1);color:var(--red);border:1px solid rgba(220,0,0,.22)}
+
+.pub-head{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.pub-head::after{content:'';flex:1;height:1px;background:var(--border)}
+.pub-row{padding:14px 0;border-bottom:1px solid var(--border)}
+.pub-t{font-size:12px;color:var(--white);line-height:1.5;margin-bottom:5px}
+.pub-m{font-size:10px;color:var(--muted2)}.pub-m span{color:var(--red)}
+
+/* ── SKILLS layout ── */
+.skills-wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:28px}
+.sk-cell{background:var(--black2);padding:24px 20px;transition:background .2s}
+.sk-cell:hover{background:rgba(220,0,0,.04)}
+.sk-head{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.sk-head::before{content:'';display:block;width:10px;height:2px;background:var(--red)}
+.sk-list{display:flex;flex-direction:column;gap:8px}
+.sk-item{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--white)}
+.sk-item::before{content:'';display:block;width:3px;height:3px;background:var(--red);flex-shrink:0}
+.cert-row{display:flex;gap:14px;flex-wrap:wrap}
+.cert-c{display:flex;align-items:center;gap:14px;padding:16px 20px;background:var(--black2);border:1px solid var(--border);border-left:3px solid var(--red)}
+.cert-logo{width:32px;height:32px;border-radius:3px;background:#0078d4;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.cert-nm{font-size:12px;color:var(--white);margin-bottom:2px}
+.cert-id{font-size:10px;color:var(--muted2)}
+
+/* ── PROJECTS layout ── */
+.proj-grid{display:flex;flex-direction:column;gap:2px}
+.proj-card{
+  display:grid;grid-template-columns:56px 1fr 180px 150px;
+  align-items:center;background:var(--black2);border:1px solid var(--border);
+  text-decoration:none;color:inherit;position:relative;overflow:hidden;
+  transition:border-color .25s,background .25s;
+}
+.proj-card::after{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--red);transform:scaleY(0);transform-origin:bottom;transition:transform .25s}
+.proj-card:hover{background:rgba(220,0,0,.04);border-color:rgba(220,0,0,.3)}
+.proj-card:hover::after{transform:scaleY(1)}
+.pn{padding:24px 0;text-align:center;font-family:var(--fd);font-weight:900;font-size:18px;color:rgba(220,0,0,.3);border-right:1px solid var(--border)}
+.pi{padding:22px 26px}
+.pt{font-family:var(--fd);font-weight:700;font-size:20px;color:var(--white);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px}
+.pd{font-size:11px;color:var(--muted2);line-height:1.65;max-width:460px}
+.ps{padding:22px 18px;border-left:1px solid var(--border);font-size:10px;color:var(--red);text-align:center;line-height:1.6}
+.ps strong{display:block;font-family:var(--fd);font-weight:700;font-size:18px;color:var(--white);margin-bottom:2px}
+.pk{padding:22px 18px;border-left:1px solid var(--border);display:flex;flex-direction:column;gap:5px}
+.ptag{font-size:10px;padding:2px 9px;border:1px solid var(--border);color:var(--muted2);background:var(--black)}
+.parr{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--red);opacity:0;transition:opacity .2s;font-size:16px}
+.proj-card:hover .parr{opacity:1}
+
+/* ── CAREER layout ── */
+.career-tl{position:relative;padding-left:48px}
+.career-tl::before{content:'';position:absolute;left:16px;top:8px;bottom:8px;width:1px;background:var(--border2)}
+.c-item{position:relative;margin-bottom:44px}
+.c-item::before{content:'';position:absolute;left:-40px;top:7px;width:10px;height:10px;border-radius:50%;background:var(--red);box-shadow:0 0 0 3px var(--black),0 0 10px rgba(220,0,0,.5)}
+.c-date{font-size:9px;color:var(--red);letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
+.c-role{font-family:var(--fd);font-weight:800;font-size:22px;text-transform:uppercase;color:var(--white);line-height:1;margin-bottom:3px}
+.c-co{font-size:11px;color:var(--muted2);margin-bottom:13px}
+.c-bullets{list-style:none;display:flex;flex-direction:column;gap:7px}
+.c-bullets li{font-size:12px;color:var(--muted2);padding-left:14px;position:relative;line-height:1.7}
+.c-bullets li::before{content:'▶';position:absolute;left:0;color:var(--red);font-size:7px;top:5px}
+
+/* ── CONTACT layout ── */
+#s-contact{text-align:center;padding:80px 40px 120px}
+.contact-inner{max-width:640px;margin:0 auto}
+.contact-pre{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--red);margin-bottom:20px;display:flex;align-items:center;justify-content:center;gap:14px}
+.contact-pre::before,.contact-pre::after{content:'';width:60px;height:1px;background:var(--red)}
+.contact-h{font-family:var(--fd);font-weight:900;font-size:clamp(48px,8vw,92px);text-transform:uppercase;letter-spacing:-2px;line-height:.88;margin-bottom:10px}
+.contact-h span{color:var(--red)}
+.contact-sub{color:var(--muted2);font-size:12px;max-width:380px;margin:20px auto 44px;line-height:1.9}
+.contact-email{display:inline-block;font-family:var(--fd);font-weight:700;font-size:26px;color:var(--white);text-decoration:none;letter-spacing:1px;border-bottom:2px solid var(--red);padding-bottom:3px;text-transform:uppercase;transition:color .2s;margin-bottom:44px}
+.contact-email:hover{color:var(--red)}
+.contact-links{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.soc{display:flex;align-items:center;gap:9px;padding:11px 22px;border:1px solid var(--border);color:var(--muted2);font-size:11px;text-decoration:none;letter-spacing:.08em;text-transform:uppercase;transition:all .2s}
+.soc:hover{border-color:var(--red);color:var(--white);background:rgba(220,0,0,.07)}
+
+/* ── FOOTER ── */
+footer{border-top:3px solid var(--red);background:var(--black2);padding:18px 40px;display:flex;align-items:center;justify-content:space-between;font-size:10px;color:var(--muted2);letter-spacing:.08em;position:relative;z-index:2}
+.fl{font-family:var(--fd);font-weight:900;font-size:15px;color:var(--white);text-decoration:none}
+.fl span{color:var(--red)}
+
+/* TIMING BOARD pinned below nav */
+.timing-strip{
+  position:relative;z-index:2;
+  display:flex;background:var(--black2);
+  border-bottom:2px solid var(--red);
+}
+.tc{flex:1;padding:14px 28px;border-right:1px solid var(--border);display:flex;flex-direction:column;gap:3px}
+.tc:last-child{border-right:none}
+.tl{font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.tv{font-family:var(--fd);font-weight:700;font-size:24px;color:var(--white)}
+.tv span{color:var(--red)}
+.ts2{font-size:9px;color:var(--muted2)}
+
+/* checkerboard hero corner */
+.checker{position:absolute;right:0;bottom:0;width:100px;height:50px;background-image:repeating-conic-gradient(rgba(220,0,0,.16) 0% 25%,transparent 0% 50%);background-size:10px 10px;pointer-events:none}
+
+@media(max-width:900px){
+  nav{padding:0 20px}.nav-links{display:none}
+  .section-panel{padding:0 24px}
+  .about-cols{grid-template-columns:1fr;gap:40px}
+  .skills-wrap{grid-template-columns:repeat(2,1fr)}
+  .proj-card{grid-template-columns:44px 1fr}.ps,.pk{display:none}
+  #s-contact{padding:60px 24px 80px}
+  .timing-strip{overflow-x:auto}
+  footer{flex-direction:column;gap:6px;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">ARYAN<b> · </b>DEBRAY</a>
+  <ul class="nav-links">
+    <li><a href="#s-about" data-sec="about">About</a></li>
+    <li><a href="#s-skills" data-sec="skills">Skills</a></li>
+    <li><a href="#s-projects" data-sec="projects">Projects</a></li>
+    <li><a href="#s-career" data-sec="career">Career</a></li>
+    <li><a href="#s-contact" data-sec="contact">Contact</a></li>
+  </ul>
+  <a href="https://linkedin.com/in/aryan-debray" target="_blank" class="nav-cta">LinkedIn ↗</a>
+</nav>
+
+<!-- SECTOR PROGRESS BAR -->
+<div class="sector-bar"><div class="sector-progress" id="prog"></div></div>
+
+<!-- TRACK CANVAS (fixed, behind content) -->
+<canvas id="track-canvas"></canvas>
+
+<!-- PAGE CONTENT -->
+<div id="scroll-root">
+
+  <!-- HERO -->
+  <section id="s-hero">
+    <div class="hero-inner">
+      <div class="hero-kicker">AI / ML Engineer</div>
+      <h1>Aryan<em>Debray</em></h1>
+      <div class="hero-role">Data · Intelligence · Speed</div>
+      <div class="hero-btns">
+        <a href="#s-projects" class="btn-r">Race Entries ↓</a>
+        <a href="https://github.com/aryandebray" target="_blank" class="btn-o">GitHub ↗</a>
+        <a href="#s-contact" class="btn-o">Contact</a>
+      </div>
+    </div>
+    <div class="checker"></div>
+  </section>
+
+  <!-- TIMING STRIP -->
+  <div class="timing-strip">
+    <div class="tc"><div class="tl">CGPA</div><div class="tv">9.2<span>/10</span></div><div class="ts2">KIIT University</div></div>
+    <div class="tc"><div class="tl">Publications</div><div class="tv"><span>2</span></div><div class="ts2">Research Papers</div></div>
+    <div class="tc"><div class="tl">Internships</div><div class="tv"><span>3</span></div><div class="ts2">PwC · Deloitte · Trillion</div></div>
+    <div class="tc"><div class="tl">Certifications</div><div class="tv"><span>2×</span></div><div class="ts2">Microsoft Azure · Python</div></div>
+    <div class="tc"><div class="tl">Status</div><div class="tv" style="color:var(--red)">OPEN</div><div class="ts2">Available</div></div>
+  </div>
+
+  <!-- ── ABOUT ── -->
+  <div class="track-section" id="s-about">
+    <div class="section-panel">
+      <div class="sector-label"><div class="sector-dot"></div><span class="sector-name">Sector 1</span><span class="sector-num">— Driver Profile</span></div>
+      <div class="panel-title">About Me</div>
+      <div class="about-cols">
+        <div>
+          <p class="about-p">I'm <strong>Aryan Debray</strong>, a CS graduate from Kolkata passionate about building intelligent systems. Like an F1 car engineered for peak performance — fast, precise, purpose-built.</p>
+          <p class="about-p">Currently an <strong>Analyst at Deloitte USI</strong>. Previously at <span class="hl">PwC</span> where I shipped a GPT-3.5 hospital chatbot, and at <span class="hl">Trillion Technologies</span> where I built a stock price predictor with Bi-LSTM.</p>
+          <p class="about-p">Published researcher in NLP and predictive analytics. Member of the <strong>AI Society at KIIT</strong>.</p>
+          <div class="edu-stack">
+            <div class="edu-card"><div class="edu-yr">2021 — 2025</div><div class="edu-nm">Kalinga Institute of Industrial Technology</div><div class="edu-dg">B.Tech — Computer Science Engineering</div><div class="edu-gr">CGPA: 9.2 / 10</div></div>
+            <div style="height:4px"></div>
+            <div class="edu-card"><div class="edu-yr">2019 — 2021</div><div class="edu-nm">La Martiniere for Boys, Kolkata</div><div class="edu-dg">High School — ISC &amp; ICSE</div><div class="edu-gr">ISC: 91.6% &nbsp;·&nbsp; ICSE: 91.67%</div></div>
+          </div>
+        </div>
+        <div>
+          <div class="pub-head">Research Publications</div>
+          <div class="pub-row"><div class="pub-t">Design and Implementation of Therapist Chatbot using Encoder-Decoder LSTM</div><div class="pub-m"><span>Feb 2024</span> · Aryan Debray, Roudrak Saha, Sushrut Mishra, Rajeev Sobti, Ashish Khanna</div></div>
+          <div class="pub-row"><div class="pub-t">Interpreting Scope of Predictive Analytics in Advanced Driving Assistant System</div><div class="pub-m"><span>Nov 2023</span> · Roudrak Saha, Aryan Debray, Sushrut Mishra, Vandana Sharma</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SKILLS ── -->
+  <div class="track-section" id="s-skills">
+    <div class="section-panel">
+      <div class="sector-label"><div class="sector-dot"></div><span class="sector-name">Sector 2</span><span class="sector-num">— Technical Arsenal</span></div>
+      <div class="panel-title">Skills</div>
+      <div class="skills-wrap">
+        <div class="sk-cell"><div class="sk-head">Languages</div><div class="sk-list"><div class="sk-item">Python</div><div class="sk-item">SQL</div><div class="sk-item">Java</div><div class="sk-item">C++</div><div class="sk-item">Apex</div><div class="sk-item">HTML / Shell</div></div></div>
+        <div class="sk-cell"><div class="sk-head">ML / AI</div><div class="sk-list"><div class="sk-item">LSTM / Bi-LSTM</div><div class="sk-item">GPT-3.5 Turbo</div><div class="sk-item">MusicGen LLM</div><div class="sk-item">Encoder-Decoder</div><div class="sk-item">Prompt Engineering</div><div class="sk-item">Linear Regression</div></div></div>
+        <div class="sk-cell"><div class="sk-head">Tools</div><div class="sk-list"><div class="sk-item">Streamlit</div><div class="sk-item">PowerBI</div><div class="sk-item">MS SQL Server</div><div class="sk-item">Salesforce LWC</div><div class="sk-item">Azure</div><div class="sk-item">Microsoft Office</div></div></div>
+        <div class="sk-cell"><div class="sk-head">Domains</div><div class="sk-list"><div class="sk-item">Generative AI</div><div class="sk-item">NLP</div><div class="sk-item">Time Series</div><div class="sk-item">Data Analytics</div><div class="sk-item">Cloud (Azure)</div><div class="sk-item">CRM / Salesforce</div></div></div>
+      </div>
+      <div class="cert-row">
+        <div class="cert-c"><div class="cert-logo">☁</div><div><div class="cert-nm">Azure AI Fundamentals</div><div class="cert-id">AI-900 · Microsoft</div></div></div>
+        <div class="cert-c"><div class="cert-logo" style="background:#f9a825">🐍</div><div><div class="cert-nm">Introduction to Python</div><div class="cert-id">MTA 98-381 · Microsoft</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PROJECTS ── -->
+  <div class="track-section" id="s-projects">
+    <div class="section-panel">
+      <div class="sector-label"><div class="sector-dot"></div><span class="sector-name">Sector 3</span><span class="sector-num">— Race Entries</span></div>
+      <div class="panel-title">Projects</div>
+      <div class="proj-grid">
+        <a href="project-music.html" class="proj-card">
+          <div class="pn">01</div>
+          <div class="pi"><div class="pt">AI Music Generator</div><div class="pd">Meta MusicGen LLM — text to audio at 32 kHz via Streamlit. 5–20s clips.</div></div>
+          <div class="ps"><strong>32 kHz</strong>Sample Rate</div>
+          <div class="pk"><span class="ptag">Python</span><span class="ptag">MusicGen</span><span class="ptag">Streamlit</span></div>
+          <div class="parr">→</div>
+        </a>
+        <a href="project-temp.html" class="proj-card">
+          <div class="pn">02</div>
+          <div class="pi"><div class="pt">Land Temperature Predictor</div><div class="pd">Bi-LSTM climate model — R² 0.998, RMSE 0.055. Near-perfect sequence learning.</div></div>
+          <div class="ps"><strong>R² 0.998</strong>RMSE 0.055</div>
+          <div class="pk"><span class="ptag">Bi-LSTM</span><span class="ptag">Python</span><span class="ptag">Keras</span></div>
+          <div class="parr">→</div>
+        </a>
+        <a href="project-chatbot.html" class="proj-card">
+          <div class="pn">03</div>
+          <div class="pi"><div class="pt">Hospital Assistant Chatbot</div><div class="pd">GPT-3.5 Turbo + prompt engineering for patient queries. Built at PwC.</div></div>
+          <div class="ps"><strong>GPT-3.5</strong>PwC · Gen AI</div>
+          <div class="pk"><span class="ptag">GPT-3.5</span><span class="ptag">Streamlit</span></div>
+          <div class="parr">→</div>
+        </a>
+        <a href="project-stock.html" class="proj-card">
+          <div class="pn">04</div>
+          <div class="pi"><div class="pt">Stock Price Predictor</div><div class="pd">Bi-LSTM on 1,000 market entries for real stock forecasting. Trillion Technologies.</div></div>
+          <div class="ps"><strong>RMSE 1707</strong>Time Series</div>
+          <div class="pk"><span class="ptag">Bi-LSTM</span><span class="ptag">Finance</span></div>
+          <div class="parr">→</div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CAREER ── -->
+  <div class="track-section" id="s-career">
+    <div class="section-panel">
+      <div class="sector-label"><div class="sector-dot"></div><span class="sector-name">Sector 4</span><span class="sector-num">— Race History</span></div>
+      <div class="panel-title">Career</div>
+      <div class="career-tl">
+        <div class="c-item"><div class="c-date">May 2025 — Present</div><div class="c-role">Analyst — Customer &amp; Marketing</div><div class="c-co">Deloitte USI</div><ul class="c-bullets"><li>Trained in Salesforce Administration, Apex programming, and Lightning Web Components (LWC).</li><li>Customizing Salesforce apps using declarative tools and programmatic Apex approaches.</li></ul></div>
+        <div class="c-item"><div class="c-date">May 2024 — Jul 2024</div><div class="c-role">Intern — Data Analytics &amp; Cloud</div><div class="c-co">PricewaterhouseCoopers Services LLP</div><ul class="c-bullets"><li>Built a Hospital Assistant Chatbot using GPT-3.5 Turbo and prompt engineering.</li><li>Deployed interactive UI via Streamlit for patient query resolution.</li></ul></div>
+        <div class="c-item"><div class="c-date">Jan 2024 — Mar 2024</div><div class="c-role">Intern</div><div class="c-co">Trillion Technologies</div><ul class="c-bullets"><li>Bi-LSTM stock price predictor on 1,000 data entries — RMSE of 1707.</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CONTACT ── -->
+  <section id="s-contact">
+    <div class="contact-inner">
+      <div class="contact-pre">Pit Stop</div>
+      <div class="contact-h">Let's<br><span>Connect</span></div>
+      <p class="contact-sub">Whether it's a project, an opportunity, or just a conversation about AI — I'm always ready to race.</p>
+      <a href="mailto:aryandebray@gmail.com" class="contact-email">aryandebray@gmail.com</a>
+      <div class="contact-links">
+        <a href="https://linkedin.com/in/aryan-debray" target="_blank" class="soc">LinkedIn ↗</a>
+        <a href="https://github.com/aryandebray" target="_blank" class="soc">GitHub ↗</a>
+        <a href="tel:+919830113510" class="soc">+91 98301 13510</a>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /scroll-root -->
+
+<footer>
+  <a href="#" class="fl">AD<span>.</span></a>
+  <div>Aryan Debray · AI/ML Engineer · Kolkata, India</div>
+  <div>© 2025</div>
+</footer>
+
+<script>
+(function(){
+  // ── TRACK CANVAS SETUP ──────────────────────────────────────────
+  const canvas = document.getElementById('track-canvas');
+  const ctx = canvas.getContext('2d');
+
+  // Sections we animate through
+  const SECTIONS = ['s-hero','s-about','s-skills','s-projects','s-career','s-contact'];
+
+  // Track path definition — normalised coords [0..1] x and y-progress
+  // Each point: [xNorm, scrollFraction]
+  // The path weaves left→right→left as you scroll
+  const WAYPOINTS = [
+    [0.50, 0.00],  // hero centre
+    [0.50, 0.04],  // straight down
+    [0.80, 0.10],  // sweep right (into timing strip)
+    [0.82, 0.16],  // right straight
+    [0.50, 0.24],  // chicane back to centre (about)
+    [0.18, 0.30],  // swing left
+    [0.16, 0.37],  // left hairpin
+    [0.50, 0.44],  // cross to centre (skills)
+    [0.82, 0.50],  // sweep right
+    [0.84, 0.56],  // right side
+    [0.50, 0.63],  // back to centre (projects)
+    [0.18, 0.69],  // left sweep
+    [0.16, 0.75],  // left side
+    [0.50, 0.82],  // back (career)
+    [0.78, 0.88],  // right
+    [0.50, 0.94],  // come back (contact)
+    [0.50, 1.00],  // finish
+  ];
+
+  // Section scroll fractions (where car is when section is centred)
+  const SEC_FRACS = {
+    's-about':    0.24,
+    's-skills':   0.44,
+    's-projects': 0.63,
+    's-career':   0.82,
+    's-contact':  0.96,
+  };
+
+  let W, H, totalH;
+  function resize(){
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    totalH = document.body.scrollHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Build catmull-rom spline through waypoints
+  function catmullPoint(p0,p1,p2,p3,t){
+    return 0.5*((2*p1)+(-p0+p2)*t+(2*p0-5*p1+4*p2-p3)*t*t+(-p0+3*p1-3*p2+p3)*t*t*t);
+  }
+  function buildSpline(pts, steps){
+    const out=[];
+    for(let i=0;i<pts.length-1;i++){
+      const p0=pts[Math.max(0,i-1)], p1=pts[i], p2=pts[i+1], p3=pts[Math.min(pts.length-1,i+2)];
+      for(let s=0;s<steps;s++){
+        const t=s/steps;
+        out.push([catmullPoint(p0[0],p1[0],p2[0],p3[0],t), catmullPoint(p0[1],p1[1],p2[1],p3[1],t)]);
+      }
+    }
+    out.push(pts[pts.length-1]);
+    return out;
+  }
+
+  const SPLINE_STEPS = 60;
+  const spline = buildSpline(WAYPOINTS, SPLINE_STEPS);
+
+  // Get screen point from normalised coords
+  function toScreen(xn, yn){
+    return [xn * W, yn * H];
+  }
+
+  // Get car position for scroll fraction
+  function getCarPos(frac){
+    // find two spline points that bracket frac
+    let best=null, bestDist=Infinity;
+    for(let i=0;i<spline.length;i++){
+      const d=Math.abs(spline[i][1]-frac);
+      if(d<bestDist){bestDist=d;best=i;}
+    }
+    // interpolate between best and next
+    if(best<spline.length-1){
+      const a=spline[best], b=spline[best+1];
+      const span=b[1]-a[1]||0.0001;
+      const t=(frac-a[1])/span;
+      return [a[0]+(b[0]-a[0])*t, frac];
+    }
+    return spline[best];
+  }
+
+  // Get car angle
+  function getCarAngle(frac){
+    const eps=0.005;
+    const a=getCarPos(Math.max(0,frac-eps));
+    const b=getCarPos(Math.min(1,frac+eps));
+    return Math.atan2((b[1]-a[1])*H, (b[0]-a[0])*W);
+  }
+
+  // ── DRAWING ──────────────────────────────────────────────────────
+  function drawTrack(scrollFrac){
+    ctx.clearRect(0,0,W,H);
+
+    // Dark vignette
+    const vg=ctx.createRadialGradient(W/2,H/2,H*0.2,W/2,H/2,H*0.85);
+    vg.addColorStop(0,'rgba(8,8,8,0)');
+    vg.addColorStop(1,'rgba(8,8,8,0.55)');
+    ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
+
+    // Convert spline to screen coords (y relative to viewport using scroll)
+    const pts=spline.map(p=>{
+      const sx=p[0]*W;
+      const sy=(p[1]*totalH)-(window.scrollY);
+      return [sx,sy];
+    });
+
+    // Filter to only draw points near viewport
+    const visible=pts.filter(p=>p[1]>-300&&p[1]<H+300);
+    if(visible.length<2)return;
+
+    // ── Outer tarmac (wide) ──
+    ctx.beginPath();
+    ctx.moveTo(visible[0][0],visible[0][1]);
+    for(let i=1;i<visible.length;i++) ctx.lineTo(visible[i][0],visible[i][1]);
+    ctx.strokeStyle='#1c1c1c';ctx.lineWidth=28;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();
+
+    // ── Track surface ──
+    ctx.beginPath();
+    ctx.moveTo(visible[0][0],visible[0][1]);
+    for(let i=1;i<visible.length;i++) ctx.lineTo(visible[i][0],visible[i][1]);
+    ctx.strokeStyle='#242424';ctx.lineWidth=22;ctx.stroke();
+
+    // ── Passed (red glow) ──
+    const passedPts=pts.filter(p=>{
+      const origY=(p[1]+window.scrollY)/totalH;
+      return origY<=scrollFrac+0.01;
+    });
+    if(passedPts.length>=2){
+      const nearPts=passedPts.filter(p=>p[1]>-300&&p[1]<H+300);
+      if(nearPts.length>=2){
+        ctx.beginPath();
+        ctx.moveTo(nearPts[0][0],nearPts[0][1]);
+        for(let i=1;i<nearPts.length;i++) ctx.lineTo(nearPts[i][0],nearPts[i][1]);
+        ctx.strokeStyle='rgba(220,0,0,0.7)';ctx.lineWidth=3;
+        ctx.shadowColor='rgba(220,0,0,0.9)';ctx.shadowBlur=12;
+        ctx.stroke();ctx.shadowBlur=0;
+      }
+    }
+
+    // ── White dashed centre line ──
+    ctx.beginPath();
+    ctx.moveTo(visible[0][0],visible[0][1]);
+    for(let i=1;i<visible.length;i++) ctx.lineTo(visible[i][0],visible[i][1]);
+    ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=1.5;
+    ctx.setLineDash([10,14]);ctx.stroke();ctx.setLineDash([]);
+
+    // ── Sector markers ──
+    const markers=[
+      {frac:SEC_FRACS['s-about'],   label:'S1 · ABOUT'},
+      {frac:SEC_FRACS['s-skills'],  label:'S2 · SKILLS'},
+      {frac:SEC_FRACS['s-projects'],label:'S3 · PROJECTS'},
+      {frac:SEC_FRACS['s-career'],  label:'S4 · CAREER'},
+      {frac:SEC_FRACS['s-contact'], label:'FIN · CONTACT'},
+    ];
+    markers.forEach(m=>{
+      const cp=getCarPos(m.frac);
+      const sx=cp[0]*W;
+      const sy=(m.frac*totalH)-window.scrollY;
+      if(sy<-60||sy>H+60)return;
+      const passed=scrollFrac>=m.frac-0.01;
+      // Marker dot
+      ctx.beginPath();ctx.arc(sx,sy,6,0,Math.PI*2);
+      ctx.fillStyle=passed?'#DC0000':'#333';
+      ctx.shadowColor=passed?'rgba(220,0,0,0.8)':'transparent';ctx.shadowBlur=passed?14:0;
+      ctx.fill();ctx.shadowBlur=0;
+      // Marker ring
+      ctx.beginPath();ctx.arc(sx,sy,10,0,Math.PI*2);
+      ctx.strokeStyle=passed?'rgba(220,0,0,0.5)':'rgba(255,255,255,0.1)';
+      ctx.lineWidth=1;ctx.stroke();
+      // Label
+      const lx=sx+18, anchor='left';
+      ctx.font='bold 9px "Share Tech Mono",monospace';
+      ctx.textAlign=anchor;
+      ctx.fillStyle=passed?'#DC0000':'rgba(255,255,255,0.25)';
+      ctx.fillText(m.label,lx,sy+3);
+    });
+
+    // ── Car ──
+    const carPos=getCarPos(scrollFrac);
+    const carX=carPos[0]*W;
+    const carY=(scrollFrac*totalH)-window.scrollY;
+    if(carY<-40||carY>H+40)return;
+    const angle=getCarAngle(scrollFrac);
+
+    ctx.save();
+    ctx.translate(carX,carY);
+    ctx.rotate(angle);
+
+    // Car glow
+    const cg=ctx.createRadialGradient(0,0,2,0,0,22);
+    cg.addColorStop(0,'rgba(220,0,0,0.35)');
+    cg.addColorStop(1,'rgba(220,0,0,0)');
+    ctx.fillStyle=cg;ctx.beginPath();ctx.arc(0,0,22,0,Math.PI*2);ctx.fill();
+
+    // Car body (top-down F1 silhouette)
+    ctx.fillStyle='#DC0000';
+    // Main body
+    ctx.beginPath();
+    ctx.moveTo(9,0);
+    ctx.bezierCurveTo(9,-3,6,-5,0,-5);
+    ctx.bezierCurveTo(-6,-5,-9,-3,-9,0);
+    ctx.bezierCurveTo(-9,3,-6,4,0,4);
+    ctx.bezierCurveTo(6,4,9,3,9,0);
+    ctx.fill();
+
+    // Nose
+    ctx.fillStyle='#cc0000';
+    ctx.beginPath();ctx.moveTo(9,0);ctx.lineTo(14,-1);ctx.lineTo(14,1);ctx.closePath();ctx.fill();
+
+    // Cockpit
+    ctx.fillStyle='#111';
+    ctx.beginPath();ctx.ellipse(1,0,3,1.5,0,0,Math.PI*2);ctx.fill();
+
+    // Wheels
+    ctx.fillStyle='#111';
+    [[5,-5],[5,5],[-5,-5],[-5,5]].forEach(([wx,wy])=>{
+      ctx.beginPath();ctx.ellipse(wx,wy,2.2,1.1,-0.2,0,Math.PI*2);ctx.fill();
+    });
+
+    // Front wing
+    ctx.fillStyle='#aa0000';
+    ctx.fillRect(10,-3.5,3,7);
+
+    // Rear wing
+    ctx.fillRect(-13,-4,2,8);
+    ctx.restore();
+  }
+
+  // ── SCROLL HANDLING ──────────────────────────────────────────────
+  let lastScroll=0, rafId=null;
+
+  function onScroll(){
+    totalH=document.body.scrollHeight;
+    const scrollY=window.scrollY;
+    const maxScroll=totalH-window.innerHeight;
+    const frac=maxScroll>0?scrollY/maxScroll:0;
+
+    // Progress bar
+    document.getElementById('prog').style.width=(frac*100)+'%';
+
+    // Nav active links
+    document.querySelectorAll('.nav-links a[data-sec]').forEach(a=>{
+      const sec=document.getElementById(a.dataset.sec);
+      if(!sec)return;
+      const r=sec.getBoundingClientRect();
+      a.classList.toggle('active',r.top<H/2&&r.bottom>H/2);
+    });
+
+    // Section reveal
+    document.querySelectorAll('.section-panel').forEach(el=>{
+      const r=el.getBoundingClientRect();
+      if(r.top<H*0.82)el.classList.add('visible');
+    });
+
+    if(rafId)cancelAnimationFrame(rafId);
+    rafId=requestAnimationFrame(()=>drawTrack(frac));
+  }
+
+  window.addEventListener('scroll',onScroll,{passive:true});
+  window.addEventListener('resize',()=>{resize();onScroll()});
+
+  // Smooth nav clicks
+  document.querySelectorAll('a[href^="#"]').forEach(a=>{
+    a.addEventListener('click',e=>{
+      const id=a.getAttribute('href').slice(1);
+      const el=document.getElementById(id);
+      if(el){e.preventDefault();el.scrollIntoView({behavior:'smooth'})}
+    });
+  });
+
+  // Initial draw
+  onScroll();
+  setTimeout(onScroll,100);
+})();
+</script>
+</body>
+</html>
